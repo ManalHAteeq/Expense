@@ -324,3 +324,55 @@ td {
   transform: translateX(36px);
 }
 
+/*        LIGHT THEME        */
+
+body[data-theme="light"] .app {
+  background-color: #f5f5f5;
+  color: #111;
+}
+
+body[data-theme="light"] .sidebar {
+  background: #ffffff;
+  color: #111;
+}
+
+body[data-theme="light"] .sidebar nav ul li {
+  color: #444;
+}
+
+body[data-theme="light"] .sidebar nav ul li:hover {
+  background: #eee;
+  color: purple;
+}
+
+body[data-theme="light"] .card {
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme="light"] th {
+  color: #666;
+}
+
+body[data-theme="light"] td {
+  border-top: 1px solid #ddd;
+}
+
+body[data-theme="light"] .tag {
+  background: #eee;
+  color: #333;
+}
+
+body[data-theme="light"] .quick-access button {
+  background-color: #eee;
+  color: #black;
+}
+
+/* Modal */
+body[data-theme="light"] .modal {
+  background: #ffffff;
+}
+
+body[data-theme="light"] .modal h3 {
+  color: #111;
+}

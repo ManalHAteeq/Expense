@@ -18,6 +18,8 @@ const Dashboard = () => {
   const [newDoneTaskText, setNewDoneTaskText] = useState("");
   const [newDoneTaskAmount, setNewDoneTaskAmount] = useState("");
   const [newTaskText, setNewTaskText] = useState("");
+  const [salary, setSalary]= useState(0); 
+  const [showSalaryModal, setShowSalaryModal] = useState(false);
 
   const [tasks, setTasks] = useState([
     {id: 1, text: "Mortgage", date: "1-9-2025" },
@@ -30,16 +32,16 @@ const Dashboard = () => {
   ]);
 
   const addTask = () => { 
-    // const newTaskText = prompt("Enter new Task:"); 
-    // if (newTaskText) { 
-        setTasks(prev => [
-            ...prev,
-            {id: prev.length  + 1 , text: newTaskText }
-        ]);
-    // }
+    if (!/^[A-Za-z\s]+$/.test(newTaskText)) {
+      alert("Enter a proper title");
+      return;
+    }
+    setTasks(prev => [
+       ...prev,
+      {id: prev.length  + 1 , text: newTaskText }
+    ]);
     setNewTaskText("");
     setShowModal2(false);
-
   };
 
   const removeTask = (id) => {
@@ -132,7 +134,8 @@ const Dashboard = () => {
         <h3>Quick Access </h3>
         <hr />
         <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
-        <button><BiSolidReport /> Create report</button>
+        <button onClick={() => setShowSalaryModal(true)}><BiSolidReport /> Enter Your Salary</button>
+        {salary}
         <button><IoAirplane /> Create trip</button>
         </div>
       </div>
@@ -201,7 +204,26 @@ const Dashboard = () => {
             />
             <div className="modal-actions">
               <button onClick={addTask}>Add</button>
-              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <button onClick={() => setShowModal2(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Salary Modal */}
+      {showSalaryModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Add Your Monthly Salary</h3>
+            <input
+              type="text"
+              placeholder="Enter monthly salary"
+              value={salary}
+              onChange={e => setSalary(e.target.value)}
+            />
+            <div className="modal-actions">
+              {/* <button onClick={addTask}>Add</button> */}
+              <button onClick={() => setShowSalaryModal(false)}>Add</button>
+              <button onClick={() => setShowSalaryModal(false)}>Cancel</button>
             </div>
           </div>
         </div>
