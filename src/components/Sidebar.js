@@ -1,11 +1,20 @@
-import { FaHome, FaWallet, FaUserCircle, FaCog, FaQuestionCircle, FaSun, FaMoon } from "react-icons/fa";
+import {
+  FaHome,
+  FaWallet,
+  FaUserCircle,
+  FaCog,
+  FaQuestionCircle,
+} from "react-icons/fa";
+
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ThemeSwitch from "./ThemeSwitch";
 
 const Sidebar = () => {
-    const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -22,15 +31,17 @@ const Sidebar = () => {
     };
 
     fetchUser();
-     }, []);
-  
-     const capitalizeWords = (str) => {
-        if (!str) return "";
-        return str
-        .split(" ")
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(" ");
-      };
+  }, []);
+
+  const capitalizeWords = (str) => {
+    if (!str) return "";
+    return str
+      .split(" ")
+      .map((word) =>
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      )
+      .join(" ");
+  };
 
   return (
     <div className="sidebar">
@@ -41,17 +52,27 @@ const Sidebar = () => {
 
       <nav>
         <ul>
-          <li><FaHome /> Home</li>
-          <li><FaWallet /> Expenses</li>
-          <li><FaCog /> Settings</li>
-          <li><FaQuestionCircle /> Support</li>
+          <li onClick={() => navigate("/dashboard")}>
+            <FaHome /> Home
+          </li>
+
+          <li>
+            <FaWallet /> Expenses
+          </li>
+
+          <li>
+            <FaCog /> Settings
+          </li>
+
+          <li onClick={() => navigate("/dashboard/support")}>
+            <FaQuestionCircle /> Support
+          </li>
         </ul>
       </nav>
 
-      <div className="theme-btn"> 
-      <ThemeSwitch />
-      </div> 
-
+      <div className="theme-btn">
+        <ThemeSwitch />
+      </div>
     </div>
   );
 };

@@ -182,6 +182,7 @@ td {
 .quick-access button:hover { 
   background-color: grey;
   transition: 0.3s;
+  cursor: pointer;
 }
 
 .charts { 
@@ -365,6 +366,11 @@ body[data-theme="light"] .tag {
 
 body[data-theme="light"] .quick-access button {
   background-color: #eee;
+  color: #black;
+}
+
+body[data-theme="light"] .quick-access button:hover {
+  background-color: grey;
   color: #black;
 }
 

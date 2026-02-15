@@ -1,24 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  Outlet,
+} from "react-router-dom";
+
 import Login from "./components/Login";
 import SignUp from "./components/Signup";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./components/Dashboard";
-import { auth } from "./firebase"; // optional: if you want to persist auth state
-import { onAuthStateChanged } from "firebase/auth";
+import Support from "./components/Support";
+
+import { auth } from "./firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 function App() {
-  // track auth state here (optional but useful for protected routes)
   const [user, setUser] = useState(null);
-  const [checkingAuth, setCheckingAuth] = useState(false); //Here when we type '/dashboard' without signning in it won't direct to the dashboard and when refreshed it will come back to the login page 
+  const [checkingAuth, setCheckingAuth] = useState(false); // Only check when needed
 
   useEffect(() => {
-    // listen for firebase auth state changes (optional)
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setCheckingAuth(false);
-    });
-    return () => unsubscribe();
+    // Optional: log out any persisted session on initial load
+    signOut(auth).catch(() => {}); // ensure no user is auto-logged in
   }, []);
 
   if (checkingAuth) return <div>Loading...</div>;
@@ -26,39 +31,55 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Login Route */}
         <Route
           path="/"
           element={<LoginPage onSetUser={setUser} />}
         />
+
+        {/* Protected Dashboard Layout */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute user={user}>
-              <MainLayout user={user} onSetUser={setUser} />
+              <MainLayout />
             </ProtectedRoute>
           }
-        />
-        {/* catch-all redirect to login */}
+        >
+          <Route index element={<Dashboard user={user} />} />
+          <Route path="support" element={<Support />} />
+        </Route>
+
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
 }
 
+/* -------------------- */
+/* Login Page Wrapper   */
+/* -------------------- */
 function LoginPage({ onSetUser }) {
   const navigate = useNavigate();
   const [showSignUp, setShowSignUp] = useState(false);
+
+  useEffect(() => {
+    // Listen for auth state only on login page
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      // Do NOT auto-set user here
+      // Keeps old behavior: typing /dashboard won't auto-login
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
     <>
       <Login
         onLoginSuccess={(user) => {
-          // this runs when Login calls onLoginSuccess(user)
-          console.log("Login successful:", user?.email);
-          if (onSetUser) onSetUser(user); // set parent (App) auth state
-          navigate("/dashboard"); // redirect to dashboard
+          if (onSetUser) onSetUser(user);
+          navigate("/dashboard");
         }}
-        // optional: pass sign up toggler
         onShowSignUp={() => setShowSignUp(true)}
       />
 
@@ -67,19 +88,23 @@ function LoginPage({ onSetUser }) {
   );
 }
 
-function MainLayout({ user, onSetUser }) {
+/* -------------------- */
+/* Layout with Sidebar  */
+/* -------------------- */
+function MainLayout() {
   return (
     <div className="app">
       <Sidebar />
-      <Dashboard user={user} onLogout={() => onSetUser(null)} />
+      <Outlet />
     </div>
   );
 }
 
-/* ProtectedRoute: redirects to login if not authenticated */
+/* -------------------- */
+/* Protected Route      */
+/* -------------------- */
 function ProtectedRoute({ user, children }) {
   if (!user) {
-    // if user is not signed in, redirect to login
     return <Navigate to="/" replace />;
   }
   return children;

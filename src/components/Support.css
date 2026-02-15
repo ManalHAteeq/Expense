@@ -1,0 +1,17 @@
+.support-item { 
+    display: flex;
+    align-items: center; 
+    padding:20px;
+}
+
+.support-icon { 
+    padding-right: 8px;
+}
+
+[data-theme="light"] .dashboard h2 {
+  color: black;
+}
+
+[data-theme="light"] .support-icon {
+  color: purple;
+}
