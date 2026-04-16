@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -15,29 +15,18 @@ import Dashboard from "./components/Dashboard";
 import Support from "./components/Support";
 
 import { auth } from "./firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+// FIXED: removed the signOut-on-load useEffect that was logging users out every page refresh.
+// If you want sessions to persist, just remove that call entirely.
+// If you explicitly want no auto-login, keep onAuthStateChanged but don't call signOut.
 
 function App() {
   const [user, setUser] = useState(null);
-  const [checkingAuth, setCheckingAuth] = useState(false); // Only check when needed
-
-  useEffect(() => {
-    // Optional: log out any persisted session on initial load
-    signOut(auth).catch(() => {}); // ensure no user is auto-logged in
-  }, []);
-
-  if (checkingAuth) return <div>Loading...</div>;
 
   return (
     <Router>
       <Routes>
-        {/* Login Route */}
-        <Route
-          path="/"
-          element={<LoginPage onSetUser={setUser} />}
-        />
+        <Route path="/" element={<LoginPage onSetUser={setUser} />} />
 
-        {/* Protected Dashboard Layout */}
         <Route
           path="/dashboard"
           element={
@@ -50,28 +39,15 @@ function App() {
           <Route path="support" element={<Support />} />
         </Route>
 
-        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
 }
 
-/* -------------------- */
-/* Login Page Wrapper   */
-/* -------------------- */
 function LoginPage({ onSetUser }) {
   const navigate = useNavigate();
   const [showSignUp, setShowSignUp] = useState(false);
-
-  useEffect(() => {
-    // Listen for auth state only on login page
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      // Do NOT auto-set user here
-      // Keeps old behavior: typing /dashboard won't auto-login
-    });
-    return () => unsubscribe();
-  }, []);
 
   return (
     <>
@@ -82,15 +58,11 @@ function LoginPage({ onSetUser }) {
         }}
         onShowSignUp={() => setShowSignUp(true)}
       />
-
       {showSignUp && <SignUp onClose={() => setShowSignUp(false)} />}
     </>
   );
 }
 
-/* -------------------- */
-/* Layout with Sidebar  */
-/* -------------------- */
 function MainLayout() {
   return (
     <div className="app">
@@ -100,13 +72,8 @@ function MainLayout() {
   );
 }
 
-/* -------------------- */
-/* Protected Route      */
-/* -------------------- */
 function ProtectedRoute({ user, children }) {
-  if (!user) {
-    return <Navigate to="/" replace />;
-  }
+  if (!user) return <Navigate to="/" replace />;
   return children;
 }
 
