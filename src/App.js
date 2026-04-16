@@ -14,7 +14,7 @@ import Sidebar from "./components/Sidebar";
 import Dashboard from "./components/Dashboard";
 import Support from "./components/Support";
 
-import { auth } from "./firebase";
+// import { auth } from "./firebase";
 // FIXED: removed the signOut-on-load useEffect that was logging users out every page refresh.
 // If you want sessions to persist, just remove that call entirely.
 // If you explicitly want no auto-login, keep onAuthStateChanged but don't call signOut.
