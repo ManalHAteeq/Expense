@@ -20,13 +20,20 @@ body, html, #root {
   background-color: #000;
 }
 
-.slogan { 
-    padding: 0 110px 0 0;
-    background: linear-gradient(70deg, purple, white);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-size: 22px;
+.slogan {
+  padding: 0 60px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 22px;
+}
+
+.slogan h2, .slogan h4 {
+  background: linear-gradient(70deg, purple, white);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 4px 0;
 }
 
 /* Card style matches your dashboard cards */
@@ -91,3 +98,28 @@ body, html, #root {
   width: 100%;
 }
 
+
+.login-logo {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 26px;
+  display: block;
+}
+
+/* Star field */
+.star-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-page > *:not(.star-canvas) {
+  position: relative;
+  z-index: 1;
+}

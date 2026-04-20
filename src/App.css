@@ -22,7 +22,6 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  margin-top: 25px;
 }
 
 .sidebar .profile {
@@ -356,6 +355,7 @@ td {
   border-radius: 20px;
   cursor: pointer;
   transition: background 0.3s ease;
+  margin-bottom: 10px;
 }
 
 .theme-switch .icon {
@@ -415,7 +415,7 @@ body[data-theme="light"] .tag { background: #eee; color: #333; }
 
 body[data-theme="light"] .quick-access button {
   background-color: #eee;
-  color: black; /* FIXED: was `color: #black` which is invalid CSS */
+  color: black;
 }
 
 body[data-theme="light"] .quick-access button:hover {
@@ -429,3 +429,143 @@ body[data-theme="light"] .modal input { background: #f5f5f5; color: #111; }
 body[data-theme="light"] .date-cell { color: #999; }
 body[data-theme="light"] .task-date { color: #999; }
 body[data-theme="light"] .empty-state { color: #bbb; }
+
+/* Budget Alert Banner */
+.budget-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease;
+}
+
+.budget-alert--notice {
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  color: #fde68a;
+}
+
+.budget-alert--warning {
+  background: rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  color: #fdba74;
+}
+
+.budget-alert--danger {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.budget-alert__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.budget-alert__message {
+  flex: 1;
+}
+
+.budget-alert__dismiss {
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.budget-alert__dismiss:hover {
+  opacity: 1;
+}
+
+/* Budget Progress Bar */
+.budget-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.budget-progress-track {
+  flex: 1;
+  height: 6px;
+  background: #2a2a2a;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.budget-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+.fill--ok      { background: #4ade80; }
+.fill--warning { background: #fb923c; }
+.fill--danger  { background: #f87171; }
+
+.budget-progress-label {
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+}
+
+body[data-theme="light"] .budget-progress-track {
+  background: #e5e7eb;
+}
+
+body[data-theme="light"] .budget-progress-label {
+  color: #999;
+}
+
+body[data-theme="light"] .budget-alert--notice {
+  background: rgba(234, 179, 8, 0.08);
+  color: #92400e;
+}
+
+body[data-theme="light"] .budget-alert--warning {
+  background: rgba(249, 115, 22, 0.08);
+  color: #9a3412;
+}
+
+body[data-theme="light"] .budget-alert--danger {
+  background: rgba(239, 68, 68, 0.08);
+  color: #991b1b;
+}
+
+/* Logout Button */
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #f87171;
+  padding: 14px 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: 0.3s;
+  margin-top: auto;
+  list-style: none;
+  font-weight: 500;
+}
+
+.logout-btn:hover {
+  background: rgba(248, 113, 113, 0.1);
+  color: #ef4444;
+}
+
+body[data-theme="light"] .logout-btn {
+  color: #dc2626;
+}
+
+body[data-theme="light"] .logout-btn:hover {
+  background: rgba(220, 38, 38, 0.08);
+}

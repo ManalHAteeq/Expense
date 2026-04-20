@@ -3,12 +3,16 @@ import { CgGoogleTasks } from "react-icons/cg";
 import { BiSolidReport } from "react-icons/bi";
 import { IoAirplane } from "react-icons/io5";
 import { FaTrash } from "react-icons/fa";
-import React, { useState } from "react";
+import { MdWarning, MdError } from "react-icons/md";
+import React, { useState, useEffect } from "react";
+import { db } from "../firebase";
+import {
+  doc, getDoc, updateDoc,
+  collection, addDoc, deleteDoc, onSnapshot, query
+} from "firebase/firestore";
 import "../App.css";
 
-let taskIdCounter = 10;
-
-const Dashboard = () => {
+const Dashboard = ({ user }) => {
   const [showModal, setShowModal] = useState(false);
   const [showModal2, setShowModal2] = useState(false);
   const [showPayModal, setShowPayModal] = useState(false);
@@ -19,17 +23,47 @@ const Dashboard = () => {
   const [newTaskText, setNewTaskText] = useState("");
   const [salary, setSalary] = useState("");
   const [showSalaryModal, setShowSalaryModal] = useState(false);
+  const [tasks, setTasks] = useState([]);
+  const [doneTasks, setDoneTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [alertDismissed, setAlertDismissed] = useState(false);
 
-  const [tasks, setTasks] = useState([
-    { id: 1, text: "Mortgage", date: "1-9-2025" },
-    { id: 2, text: "University Fees", date: "3-9-2025" },
-  ]);
+  const uid = user?.uid;
 
-  const [doneTasks, setDoneTasks] = useState([
-    { id: 3, text: "Ahmad's School", amount: 150.0, date: "2-9-2025" },
-    { id: 4, text: "Car Insurance", amount: 1500.0, date: "2-9-2025" },
-  ]);
+  // ── Load salary from Firestore ──────────────────────────────────────────────
+  useEffect(() => {
+    if (!uid) return;
+    const fetchSalary = async () => {
+      const snap = await getDoc(doc(db, "users", uid));
+      if (snap.exists() && snap.data().salary != null) {
+        setSalary(String(snap.data().salary));
+      }
+    };
+    fetchSalary();
+  }, [uid]);
 
+  // ── Real-time listener for pending tasks ────────────────────────────────────
+  useEffect(() => {
+    if (!uid) return;
+    const q = query(collection(db, "users", uid, "pendingTasks"));
+    const unsub = onSnapshot(q, (snap) => {
+      setTasks(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setLoading(false);
+    });
+    return () => unsub();
+  }, [uid]);
+
+  // ── Real-time listener for paid expenses ────────────────────────────────────
+  useEffect(() => {
+    if (!uid) return;
+    const q = query(collection(db, "users", uid, "paidExpenses"));
+    const unsub = onSnapshot(q, (snap) => {
+      setDoneTasks(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
+  }, [uid]);
+
+  // ── Derived values ──────────────────────────────────────────────────────────
   const monthlyData = doneTasks.reduce((acc, task) => {
     const parts = task.date ? task.date.split("-") : [];
     const monthNum = parts.length >= 2 ? parseInt(parts[1]) : null;
@@ -44,16 +78,37 @@ const Dashboard = () => {
   const totalSpent = doneTasks.reduce((sum, t) => sum + t.amount, 0);
   const salaryNum = parseFloat(salary) || 0;
   const remaining = salaryNum - totalSpent;
+  const spentPercent = salaryNum > 0 ? (totalSpent / salaryNum) * 100 : 0;
 
-  const addTask = () => {
+  const spentBracket = Math.floor(spentPercent / 10);
+  useEffect(() => { setAlertDismissed(false); }, [salary, spentBracket]);
+
+  const getBudgetAlert = () => {
+    if (!salaryNum || alertDismissed) return null;
+    if (spentPercent >= 100) return { level: "danger", icon: <MdError size={20} />, message: `You've exceeded your budget by $${Math.abs(remaining).toFixed(2)}!` };
+    if (spentPercent >= 80)  return { level: "warning", icon: <MdWarning size={20} />, message: `Heads up — you've spent ${spentPercent.toFixed(0)}% of your salary. Only $${remaining.toFixed(2)} left.` };
+    if (spentPercent >= 60)  return { level: "notice", icon: <MdWarning size={20} />, message: `You've used ${spentPercent.toFixed(0)}% of your budget. $${remaining.toFixed(2)} remaining.` };
+    return null;
+  };
+  const budgetAlert = getBudgetAlert();
+
+  const todayStr = () => {
+    const d = new Date();
+    return `${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}`;
+  };
+
+  // ── Add pending task ────────────────────────────────────────────────────────
+  const addTask = async () => {
     if (!newTaskText.trim()) { alert("Please enter a task name."); return; }
-    const today = new Date();
-    const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
-    setTasks(prev => [...prev, { id: ++taskIdCounter, text: newTaskText.trim(), date: dateStr }]);
+    await addDoc(collection(db, "users", uid, "pendingTasks"), {
+      text: newTaskText.trim(),
+      date: todayStr(),
+    });
     setNewTaskText("");
     setShowModal2(false);
   };
 
+  // ── Mark pending task as paid ───────────────────────────────────────────────
   const initiateRemoveTask = (id) => {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
@@ -62,34 +117,77 @@ const Dashboard = () => {
     setShowPayModal(true);
   };
 
-  const confirmPayTask = () => {
+  const confirmPayTask = async () => {
     const value = parseFloat(payAmount);
     if (isNaN(value) || value < 0) { alert("Please enter a valid amount."); return; }
-    const today = new Date();
-    const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
-    setTasks(prev => prev.filter(t => t.id !== payingTask.id));
-    setDoneTasks(prev => [...prev, { ...payingTask, amount: value, date: dateStr }]);
+    // Add to paidExpenses
+    await addDoc(collection(db, "users", uid, "paidExpenses"), {
+      text: payingTask.text,
+      amount: value,
+      date: todayStr(),
+    });
+    // Remove from pendingTasks
+    await deleteDoc(doc(db, "users", uid, "pendingTasks", payingTask.id));
     setShowPayModal(false);
     setPayingTask(null);
   };
 
-  const addTaskDone = () => {
+  // ── Add paid expense directly ───────────────────────────────────────────────
+  const addTaskDone = async () => {
     if (!newDoneTaskText.trim()) { alert("Please enter a title."); return; }
     const value = parseFloat(newDoneTaskAmount);
     if (isNaN(value) || value < 0) { alert("Enter a valid amount."); return; }
-    const today = new Date();
-    const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
-    setDoneTasks(prev => [...prev, { id: ++taskIdCounter, text: newDoneTaskText.trim(), amount: value, date: dateStr }]);
+    await addDoc(collection(db, "users", uid, "paidExpenses"), {
+      text: newDoneTaskText.trim(),
+      amount: value,
+      date: todayStr(),
+    });
     setNewDoneTaskText("");
     setNewDoneTaskAmount("");
     setShowModal(false);
   };
 
-  const removeDoneTask = (id) => setDoneTasks(prev => prev.filter(t => t.id !== id));
+  // ── Delete paid expense ─────────────────────────────────────────────────────
+  const removeDoneTask = async (id) => {
+    await deleteDoc(doc(db, "users", uid, "paidExpenses", id));
+  };
+
+  // ── Save salary to Firestore ────────────────────────────────────────────────
+  const saveSalary = async () => {
+    await updateDoc(doc(db, "users", uid), { salary: parseFloat(salary) || 0 });
+    setShowSalaryModal(false);
+  };
+
+  const clearSalary = async () => {
+    setSalary("");
+    await updateDoc(doc(db, "users", uid), { salary: 0 });
+    setShowSalaryModal(false);
+  };
+
+  if (loading) return <div style={{ color: "#888", padding: 40 }}>Loading your data...</div>;
 
   return (
     <div className="dashboard">
-      {/* Summary Bar */}
+      {budgetAlert && (
+        <div className={`budget-alert budget-alert--${budgetAlert.level}`}>
+          <span className="budget-alert__icon">{budgetAlert.icon}</span>
+          <span className="budget-alert__message">{budgetAlert.message}</span>
+          <button className="budget-alert__dismiss" onClick={() => setAlertDismissed(true)}>✕</button>
+        </div>
+      )}
+
+      {salaryNum > 0 && (
+        <div className="budget-progress-wrap">
+          <div className="budget-progress-track">
+            <div
+              className={`budget-progress-fill ${spentPercent >= 100 ? "fill--danger" : spentPercent >= 80 ? "fill--warning" : "fill--ok"}`}
+              style={{ width: `${Math.min(spentPercent, 100)}%` }}
+            />
+          </div>
+          <span className="budget-progress-label">{spentPercent.toFixed(0)}% of budget used</span>
+        </div>
+      )}
+
       {salaryNum > 0 && (
         <div className="summary-bar">
           <div className="summary-item">
@@ -102,16 +200,14 @@ const Dashboard = () => {
           </div>
           <div className="summary-item">
             <span className="summary-label">Remaining</span>
-            <span className={`summary-value ${remaining < 0 ? "negative" : "positive"}`}>
-              ${remaining.toFixed(2)}
-            </span>
+            <span className={`summary-value ${remaining < 0 ? "negative" : "positive"}`}>${remaining.toFixed(2)}</span>
           </div>
         </div>
       )}
 
       <div className="top-section">
         <div className="card">
-          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <h3>Tasks To Pay</h3>
             <span className="add" onClick={() => setShowModal2(true)}> + New Task </span>
           </div>
@@ -129,19 +225,14 @@ const Dashboard = () => {
         </div>
 
         <div className="card">
-          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <h3>Already Paid</h3>
             <span className="done" onClick={() => setShowModal(true)}> + New </span>
           </div>
           <div className="table-container">
             <table>
               <thead>
-                <tr>
-                  <th>Subject</th>
-                  <th>Date</th>
-                  <th>Amount</th>
-                  <th></th>
-                </tr>
+                <tr><th>Subject</th><th>Date</th><th>Amount</th><th></th></tr>
               </thead>
               <tbody>
                 {doneTasks.map((e) => (
@@ -149,14 +240,10 @@ const Dashboard = () => {
                     <td>{e.text}</td>
                     <td className="date-cell">{e.date || "—"}</td>
                     <td>${e.amount.toFixed(2)}</td>
-                    <td>
-                      <FaTrash className="delete-icon" onClick={() => removeDoneTask(e.id)} title="Remove entry" />
-                    </td>
+                    <td><FaTrash className="delete-icon" onClick={() => removeDoneTask(e.id)} title="Remove entry" /></td>
                   </tr>
                 ))}
-                {doneTasks.length === 0 && (
-                  <tr><td colSpan={4} className="empty-state">No expenses yet</td></tr>
-                )}
+                {doneTasks.length === 0 && <tr><td colSpan={4} className="empty-state">No expenses yet</td></tr>}
               </tbody>
             </table>
           </div>
@@ -166,7 +253,7 @@ const Dashboard = () => {
       <div className="card quick-access">
         <h3>Quick Access</h3>
         <hr />
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
           <button onClick={() => setShowSalaryModal(true)}>
             <BiSolidReport /> {salaryNum > 0 ? `Salary: $${salaryNum.toFixed(0)}` : "Enter Your Salary"}
           </button>
@@ -244,10 +331,10 @@ const Dashboard = () => {
         <div className="modal-overlay">
           <div className="modal">
             <h3>Monthly Salary</h3>
-            <input type="number" placeholder="Enter monthly salary ($)" min="0" value={salary} onChange={e => setSalary(e.target.value)} onKeyDown={e => e.key === "Enter" && setShowSalaryModal(false)} autoFocus />
+            <input type="number" placeholder="Enter monthly salary ($)" min="0" value={salary} onChange={e => setSalary(e.target.value)} onKeyDown={e => e.key === "Enter" && saveSalary()} autoFocus />
             <div className="modal-actions">
-              <button onClick={() => setShowSalaryModal(false)}>Save</button>
-              <button onClick={() => { setSalary(""); setShowSalaryModal(false); }}>Clear</button>
+              <button onClick={saveSalary}>Save</button>
+              <button onClick={clearSalary}>Clear</button>
             </div>
           </div>
         </div>

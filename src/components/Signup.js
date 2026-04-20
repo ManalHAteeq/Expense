@@ -29,8 +29,6 @@ const SignUp = ({ onClose }) => {
 
       console.log("User signed up:", user.email);
       setSuccess("Account created successfully!");
-
-      // OPTIONAL: Save user in Firestore
       
       await setDoc(doc(db, "users", user.uid), {
         firstName: fname,
