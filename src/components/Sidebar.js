@@ -5,6 +5,8 @@ import {
   FaCog,
   FaQuestionCircle,
   FaSignOutAlt,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
 
 import { auth, db } from "../firebase";
@@ -16,6 +18,7 @@ import ThemeSwitch from "./ThemeSwitch";
 
 const Sidebar = () => {
   const [userName, setUserName] = useState("");
+  const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,38 +48,57 @@ const Sidebar = () => {
     navigate("/");
   };
 
+  const go = (path) => {
+    navigate(path);
+    setMobileOpen(false);
+  };
+
   return (
-    <div className="sidebar">
-      <div className="profile">
-        <FaUserCircle size={100} />
-        <span>{capitalizeWords(userName)}</span>
+    <>
+      {/* Hamburger button — only visible on mobile when sidebar is closed */}
+      <button
+        className={`sidebar-toggle ${mobileOpen ? "sidebar-toggle--hidden" : ""}`}
+        onClick={() => setMobileOpen(true)}
+      >
+        <FaBars size={20} />
+      </button>
+
+      {/* Overlay — closes sidebar when tapping outside */}
+      {mobileOpen && (
+        <div className="sidebar-overlay" onClick={() => setMobileOpen(false)} />
+      )}
+
+      {/* Sidebar */}
+      <div className={`sidebar ${mobileOpen ? "sidebar--open" : ""}`}>
+
+        {/* Close button inside sidebar on mobile */}
+        <button className="sidebar-close" onClick={() => setMobileOpen(false)}>
+          <FaTimes size={18} />
+        </button>
+
+        <div className="profile">
+          <FaUserCircle size={100} />
+          <span>{capitalizeWords(userName)}</span>
+        </div>
+
+        <nav>
+          <ul>
+            <li onClick={() => go("/dashboard")}><FaHome /> Home</li>
+            <li onClick={() => go("/dashboard/expenses")}><FaWallet /> Expenses</li>
+            <li><FaCog /> Settings</li>
+            <li onClick={() => go("/dashboard/support")}><FaQuestionCircle /> Support</li>
+          </ul>
+        </nav>
+
+        <div className="theme-btn">
+          <ThemeSwitch />
+        </div>
+
+        <li className="logout-btn" onClick={handleLogout}>
+          <FaSignOutAlt /> Logout
+        </li>
       </div>
-
-      <nav>
-        <ul>
-          <li onClick={() => navigate("/dashboard")}>
-            <FaHome /> Home
-          </li>
-          <li onClick={() => navigate("/dashboard/expenses")}>
-            <FaWallet /> Expenses
-          </li>
-          <li>
-            <FaCog /> Settings
-          </li>
-          <li onClick={() => navigate("/dashboard/support")}>
-            <FaQuestionCircle /> Support
-          </li>
-        </ul>
-      </nav>
-
-      <div className="theme-btn">
-        <ThemeSwitch />
-      </div>
-
-      <li className="logout-btn" onClick={handleLogout}>
-        <FaSignOutAlt /> Logout
-      </li>
-    </div>
+    </>
   );
 };
 

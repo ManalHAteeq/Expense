@@ -313,3 +313,57 @@ body[data-theme="light"] .expenses-loading { color: #bbb; }
 body[data-theme="light"] .expenses-empty { color: #ccc; }
 body[data-theme="light"] .expenses-empty p { color: #bbb; }
 body[data-theme="light"] .expenses-empty-sub { color: #ccc !important; }
+
+/* ── RESPONSIVE ────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .expenses-layout {
+    grid-template-columns: 160px 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .expenses-page {
+    padding: 16px;
+    height: auto;
+    margin-top: 0;
+    overflow-x: hidden;
+  }
+
+  .expenses-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .expenses-stats {
+    width: 100%;
+  }
+
+  .stat-pill {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .expenses-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .month-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .month-btn {
+    flex: 1;
+    min-width: 130px;
+  }
+
+  .month-detail-total-value {
+    font-size: 1.2rem;
+  }
+
+  .expense-list {
+    max-height: none;
+  }
+}

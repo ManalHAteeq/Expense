@@ -1,7 +1,18 @@
 /* General */
 * {
   box-sizing: border-box;
-  overflow: hidden; 
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  html, body, #root {
+    overflow: auto;
+    height: auto;
+  }
 }
 
 .app {
@@ -568,4 +579,166 @@ body[data-theme="light"] .logout-btn {
 
 body[data-theme="light"] .logout-btn:hover {
   background: rgba(220, 38, 38, 0.08);
+}
+
+
+/* ── RESPONSIVE ────────────────────────────────────────────────── */
+
+/* Hamburger toggle — hidden on desktop */
+.sidebar-toggle {
+  display: none;
+}
+
+.sidebar-toggle--hidden {
+  display: none !important;
+}
+
+.sidebar-close {
+  display: none;
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
+/* Tablet (≤900px) */
+@media (max-width: 900px) {
+  .top-section {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-bar {
+    flex-wrap: wrap;
+  }
+
+  .charts {
+    flex-direction: column;
+  }
+
+  .quick-access button {
+    padding: 20px 30px;
+    margin: 10px 20px;
+  }
+}
+
+/* Mobile (≤600px) */
+@media (max-width: 600px) {
+
+  /* Hamburger button */
+  .sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 300;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: white;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+  }
+
+  /* Dim overlay */
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 200;
+  }
+
+  /* Sidebar slides in from the left as a drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 240px;
+    z-index: 250;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+  }
+
+  .sidebar--open {
+    transform: translateX(0);
+  }
+
+  /* Close X button inside sidebar */
+  .sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .sidebar-close:hover {
+    color: white;
+  }
+
+  /* Push content right to account for hamburger button */
+  .dashboard,
+  .expenses-page {
+    padding: 16px;
+    padding-top: 64px;
+    height: auto;
+    margin-top: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .summary-bar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .summary-item {
+    flex: 1 1 calc(50% - 10px);
+    min-width: 120px;
+  }
+
+  .summary-value { font-size: 1.1rem; }
+
+  .top-section {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .charts {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .quick-access button {
+    padding: 16px 20px;
+    margin: 8px 10px;
+    font-size: 13px;
+  }
+
+  .modal {
+    width: 95%;
+    padding: 20px;
+  }
+
+  table th:nth-child(2),
+  table td:nth-child(2) {
+    display: none;
+  }
+}
+
+body[data-theme="light"] .sidebar-toggle {
+  background: #fff;
+  border-color: #ddd;
+  color: #111;
 }
