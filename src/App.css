@@ -1,7 +1,7 @@
 /* General */
 * {
-  /* FIXED: removed overflow:hidden globally — was clipping content everywhere */
   box-sizing: border-box;
+  overflow: hidden; 
 }
 
 .app {
@@ -420,7 +420,7 @@ body[data-theme="light"] .quick-access button {
 
 body[data-theme="light"] .quick-access button:hover {
   background-color: grey;
-  color: black; /* FIXED: was `color: #black` which is invalid CSS */
+  color: black; 
 }
 
 body[data-theme="light"] .modal { background: #ffffff; }

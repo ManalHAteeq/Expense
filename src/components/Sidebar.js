@@ -57,7 +57,7 @@ const Sidebar = () => {
           <li onClick={() => navigate("/dashboard")}>
             <FaHome /> Home
           </li>
-          <li>
+          <li onClick={() => navigate("/dashboard/expenses")}>
             <FaWallet /> Expenses
           </li>
           <li>

@@ -13,6 +13,7 @@ import SignUp from "./components/Signup";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./components/Dashboard";
 import Support from "./components/Support";
+import Expenses from "./components/Expenses";
 
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -22,7 +23,6 @@ function App() {
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    // Firebase restores the session automatically — we just listen for it.
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setCheckingAuth(false);
@@ -30,8 +30,6 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Wait until Firebase has resolved the session before rendering routes.
-  // Without this, the app briefly sees user=null and redirects to login.
   if (checkingAuth) return <div style={{ color: "white", padding: 40 }}>Loading...</div>;
 
   return (
@@ -43,11 +41,12 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute user={user}>
-              <MainLayout />
+              <MainLayout user={user} />
             </ProtectedRoute>
           }
         >
           <Route index element={<Dashboard user={user} />} />
+          <Route path="expenses" element={<Expenses user={user} />} />
           <Route path="support" element={<Support />} />
         </Route>
 
@@ -75,10 +74,10 @@ function LoginPage({ onSetUser }) {
   );
 }
 
-function MainLayout() {
+function MainLayout({ user }) {
   return (
     <div className="app">
-      <Sidebar />
+      <Sidebar user={user} />
       <Outlet />
     </div>
   );

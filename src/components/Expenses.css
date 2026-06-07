@@ -1,0 +1,315 @@
+.expenses-page {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+  height: 100vh;
+  margin-top: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.expenses-loading {
+  color: #888;
+  padding: 40px;
+}
+
+/* Header */
+.expenses-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.expenses-title {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.expenses-subtitle {
+  color: #555;
+  font-size: 13px;
+  margin: 0;
+}
+
+.expenses-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.stat-pill {
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 10px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 110px;
+  text-align: right;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #a855f7;
+}
+
+/* Empty */
+.expenses-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  gap: 8px;
+  color: #444;
+}
+
+.expenses-empty-icon { font-size: 48px; }
+.expenses-empty p { margin: 0; font-size: 15px; color: #666; }
+.expenses-empty-sub { font-size: 13px !important; color: #444 !important; }
+
+/* Trend card */
+.trend-card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 14px;
+  padding: 16px 20px 8px;
+  margin-bottom: 20px;
+}
+
+.trend-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #555;
+  margin: 0 0 10px 0;
+}
+
+/* Layout */
+.expenses-body {}
+
+.expenses-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* Month list */
+.month-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.month-btn {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
+  width: 100%;
+}
+
+.month-btn:hover {
+  border-color: #444;
+  background: #161616;
+}
+
+.month-btn--active {
+  border-color: #a855f7;
+  background: rgba(168, 85, 247, 0.07);
+}
+
+.month-btn-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.month-btn--active .month-btn-name {
+  color: #a855f7;
+}
+
+.month-btn-meta {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.month-btn-year {
+  font-size: 11px;
+  color: #444;
+}
+
+.month-btn-count {
+  font-size: 11px;
+  color: #444;
+}
+
+.month-btn-total {
+  font-size: 13px;
+  font-weight: 600;
+  color: #00e6d6;
+}
+
+/* Month detail */
+.month-detail {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 14px;
+  padding: 20px 24px;
+  animation: fadeSlideIn 0.25s ease;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateX(8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.month-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.month-detail-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 4px;
+}
+
+.month-detail-year {
+  color: #444;
+  font-weight: 400;
+}
+
+.month-detail-sub {
+  font-size: 12px;
+  color: #555;
+  margin: 0;
+}
+
+.month-detail-total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.month-detail-total-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #555;
+}
+
+.month-detail-total-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #00e6d6;
+}
+
+/* Sparkline */
+.sparkline-wrap {
+  margin-bottom: 16px;
+  border-bottom: 1px solid #1e1e1e;
+  padding-bottom: 12px;
+}
+
+/* Expense rows */
+.expense-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.expense-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border-radius: 8px;
+  transition: background 0.15s;
+  animation: fadeSlideIn 0.3s ease both;
+}
+
+.expense-row:hover {
+  background: #1a1a1a;
+}
+
+.expense-row-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a855f7;
+  flex-shrink: 0;
+}
+
+.expense-row-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.expense-row-name {
+  font-size: 14px;
+  color: #ddd;
+  font-weight: 500;
+}
+
+.expense-row-date {
+  font-size: 11px;
+  color: #444;
+}
+
+.expense-row-amount {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f87171;
+  white-space: nowrap;
+}
+
+/* Light theme */
+body[data-theme="light"] .expenses-title { color: #111; }
+body[data-theme="light"] .expenses-subtitle { color: #999; }
+body[data-theme="light"] .stat-pill { background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.07); }
+body[data-theme="light"] .stat-label { color: #aaa; }
+body[data-theme="light"] .trend-card { background: #fff; border-color: #eee; box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+body[data-theme="light"] .trend-title { color: #bbb; }
+body[data-theme="light"] .month-btn { background: #fff; border-color: #eee; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+body[data-theme="light"] .month-btn:hover { border-color: #ccc; background: #fafafa; }
+body[data-theme="light"] .month-btn-name { color: #111; }
+body[data-theme="light"] .month-btn-year,
+body[data-theme="light"] .month-btn-count { color: #bbb; }
+body[data-theme="light"] .month-detail { background: #fff; border-color: #eee; box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+body[data-theme="light"] .month-detail-title { color: #111; }
+body[data-theme="light"] .month-detail-year { color: #bbb; }
+body[data-theme="light"] .month-detail-sub { color: #bbb; }
+body[data-theme="light"] .month-detail-total-label { color: #bbb; }
+body[data-theme="light"] .sparkline-wrap { border-color: #f0f0f0; }
+body[data-theme="light"] .expense-row:hover { background: #f9f9f9; }
+body[data-theme="light"] .expense-row-name { color: #222; }
+body[data-theme="light"] .expense-row-date { color: #bbb; }
+body[data-theme="light"] .expenses-loading { color: #bbb; }
+body[data-theme="light"] .expenses-empty { color: #ccc; }
+body[data-theme="light"] .expenses-empty p { color: #bbb; }
+body[data-theme="light"] .expenses-empty-sub { color: #ccc !important; }
